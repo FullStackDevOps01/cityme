@@ -1,0 +1,19 @@
+{
+  "name": "tien-devops",
+  "version": "1.0.0",
+  "description": "DevOps Class",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "DevOps"
+  ],
+  "author": "Tien Nguyen",
+  "license": "MIT",
+  "dependencies": {
+    "config": "^1.21.0",
+    "express": "^4.13.4",
+    "winston": "^2.2.0"
+  }
+}
