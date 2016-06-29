@@ -12,7 +12,7 @@ module.exports = function(req, res, next) {
     var unauthorization = config.get('unauthorization');
     if (_.indexOf(unauthorization, req.url) < 0) {
         if (t === undefined) {
-            logger.debug('Access Denied');
+            logger.debug('Access Denied', req.url);
             return res.status(401).send(JSON.stringify({}));
         }
         t = t.replace('Bearer ', '');

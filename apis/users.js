@@ -6,16 +6,29 @@ var logger = require('../helpers/logger');
 var moment = require('moment');
 var config = require('config');
 var crypto = require('crypto');
+var q = require('../queues');
 
-// create a new user
 router.post('/create', function(req, res){
     var user = new db.User(req.body);
     user.save(function(error, new_user){
         if (error) {
             return res.status(406).send(JSON.stringify({error}));
         }
-        delete new_user['salt'];
-        delete new_user['password'];
+        // remove security attributes
+        new_user = user.toObject();
+        if (new_user) {
+            delete new_user.hashed_password;
+            delete user.salt;
+        }
+        // send email welcome to user
+        q.create('email', {
+            title: '[Site Admin] Thank You',
+            to: new_user.email,
+            emailContent: {
+                username: new_user.username
+            },
+            template: 'welcome'
+        }).priority('high').save();
         res.send(JSON.stringify(new_user));
     });
 });
@@ -59,36 +72,38 @@ router.post('/login', function(req, res){
     var username = req.body.username;
     var password = req.body.password;
 
+    var generateToken = function () {
+        crypto.randomBytes(64, function(ex, buf) {
+            var token = buf.toString('base64');
+            var today = moment.utc();
+            var tomorrow = moment(today).add(config.get('token_expire'), 'seconds').format(config.get('time_format'));
+            var token = new db.Token({
+                username: username,
+                token: token,
+                expired_at: tomorrow.toString()
+            });
+            token.save(function(error, to){
+                return res.send(JSON.stringify(to));
+            });
+        });
+    };
+
     db.User.findOne({
         username: username
     }).then(function(user){
         if (!user.authenticate(password)) {
             throw false;
         }
-
         db.Token.findOne({
             username: username
         }).then(function(t){
-            if (!t){
-                crypto.randomBytes(64, function(ex, buf) {
-                    var token = buf.toString('base64');
-                    var today = moment.utc();
-                    var tomorrow = moment(today).add(config.get('token_expire'), 'seconds').format(config.get('time_format'));
-                    var token = new db.Token({
-                        username: username,
-                        token: token,
-                        expired_at: tomorrow.toString()
-                    });
-                    token.save(function(error, to){
-                        return res.send(JSON.stringify(to));
-                    });
+            if (t) {
+                t.remove(function() {
+                    return generateToken();
                 });
+            } else {
+                return generateToken();
             }
-            res.send(JSON.stringify({
-                token: t.token,
-                id: user.id,
-                expired_at: t.expired_at
-            }));
         });
     }).catch(function(e){
         res.status(401).send(JSON.stringify(e));
