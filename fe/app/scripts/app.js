@@ -9,27 +9,10 @@
  * Main module of the application.
  */
 angular
-  .module('feApp', [
-    'ngTouch',
-    'ui.router',
-    'oc.lazyLoad'
-  ])
-  // .config(function ($routeProvider) {
-  //   $routeProvider
-  //     .when('/', {
-  //       templateUrl: 'views/main.html',
-  //       controller: 'MainCtrl',
-  //       controllerAs: 'main'
-  //     })
-  //     .when('/about', {
-  //       templateUrl: 'views/about.html',
-  //       controller: 'AboutCtrl',
-  //       controllerAs: 'about'
-  //     })
-  //     .otherwise({
-  //       redirectTo: '/'
-  //     });
-  // });
+  .module('feApp')
+  .config(['$resourceProvider', function($resourceProvider) {
+    $resourceProvider.defaults.stripTrailingSlashes = false;
+  }])
   .config([
     '$stateProvider',
     '$urlRouterProvider',
@@ -56,7 +39,8 @@ angular
                         {
                             name:'feApp',
                             files:[
-                                'scripts/controllers/login.js'
+                                'scripts/controllers/login.js',
+                                'scripts/services/users.js'
                             ]
                         });
                 }
@@ -72,7 +56,8 @@ angular
                             name:'feApp',
                             files:[
                                 'scripts/directives/header/header.js',
-                                'scripts/directives/sidebar/sidebar.js'
+                                'scripts/directives/sidebar/sidebar.js',
+                                'scripts/services/users.js'
                             ]
                         });
                 }
@@ -93,6 +78,36 @@ angular
                         });
                 }
             }
+        })
+        .state('home.users', {
+            url: '/users/list/{page}/{limit}',
+            controller: 'ListUserCtrl',
+            templateUrl: 'views/users/list.html',
+            resolve: {
+                loadMyDirectives: function($ocLazyLoad){
+                    return $ocLazyLoad.load(
+                        {
+                            name:'siteSeedApp',
+                            files:[
+                                'scripts/controllers/users.js'
+                            ]
+                        });
+                }
+            }
         });
+
+        $httpProvider.interceptors.push('httpRequestInterceptor');;
     }
-]);
+])
+  .factory('httpRequestInterceptor', function ($rootScope, $cookies, $location) {
+    var ret = {
+        request: function (config) {
+            var user_info = $cookies.get('userInfo') || '{}';
+            $rootScope.user_info = JSON.parse(user_info);
+            config.headers.Authorization = 'Bearer ' + $rootScope.user_info.token;
+            return config;
+        }
+    };
+    return ret;
+});
+

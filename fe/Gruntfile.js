@@ -25,11 +25,27 @@ module.exports = function (grunt) {
     dist: 'dist'
   };
 
+  var env = process.env.NODE_ENV || 'local';
+
+  grunt.loadNpmTasks('grunt-preprocess');
+
   // Define the configuration for all the tasks
   grunt.initConfig({
 
     // Project settings
     yeoman: appConfig,
+
+    preprocess: {
+        options: {
+            context: {
+                APP_CONFIG: grunt.file.read('config/' + env + '.json'),
+            }
+        },
+        config: {
+            src: '<%= yeoman.app %>/scripts/config.tpl.js',
+            dest: '<%= yeoman.app %>/scripts/config.js'
+        }
+    },
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
@@ -37,9 +53,13 @@ module.exports = function (grunt) {
         files: ['bower.json'],
         tasks: ['wiredep']
       },
+      json: {
+        files: ['<%= yeoman.app %>/config/{,*/}*.json'],
+        tasks: ['preprocesser']
+      },
       js: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
-        tasks: ['newer:jshint:all', 'newer:jscs:all'],
+        tasks: ['newer:jshint:all', 'newer:jscs:all', 'preprocesser'],
         options: {
           livereload: '<%= connect.options.livereload %>'
         }
@@ -467,6 +487,7 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
+      'preprocess',
       'wiredep',
       'concurrent:server',
       'postcss:server',
