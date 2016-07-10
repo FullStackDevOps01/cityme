@@ -24,7 +24,7 @@ angular.module('feApp').factory('Users', function($resource, $q, APP_CONFIG) {
             var url = APP_CONFIG.services.users.list;
             var Users = $resource(url, {limit: limit, page: page});
 
-            Users.query(function(res) {
+            Users.get(function(res) {
                 deferred.resolve(res);
             }, function(res) {
                 deferred.reject(res);

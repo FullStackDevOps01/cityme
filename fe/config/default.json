@@ -5,5 +5,13 @@
             "login": "http://172.20.20.20:3000/api/v1/users/login",
             "list": "http://172.20.20.20:3000/api/v1/users/list/:page/:limit",
         }
-    }
+    },
+    "locales": {
+      "locales": {
+        "vi_VN": "Tieng Viet",
+        "en_US": "Tieng Anh"
+      },
+      "preferredLocale": "vi_VN"
+    },
+    "debug_mode": true
 }

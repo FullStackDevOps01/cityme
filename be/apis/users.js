@@ -53,17 +53,26 @@ router.get('/get/:id', function(req, res){
 
 // get list of users
 router.get('/list/:page/:limit', function(req, res){
-    var limit = (req.params.limit)? req.params.limit: 10;
+    var limit = (req.params.limit)? req.params.limit: 5;
     var skip = (req.params.page)? limit * (req.params.page - 1): 0;
-    db.User
-    .find()
-    .skip(skip)
-    .limit(limit)
-    .sort({'_id': 'desc'})
-    .then(function(users) {
-        res.send(JSON.stringify(users));
-    }).catch(function(e) {
-        res.status(500).send(JSON.stringify(e));
+    db.User.count({}, function(err, c) {
+        db.User
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .sort({'_id': 'desc'})
+        .then(function(users) {
+            if (err) {
+                throw true;
+            }
+            var ret = {
+                count: c,
+                rows: users
+            };
+            res.send(JSON.stringify(ret));
+        }).catch(function(e) {
+            res.status(500).send(JSON.stringify(e));
+        });
     });
 });
 

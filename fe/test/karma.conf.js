@@ -31,8 +31,17 @@ module.exports = function(config) {
       'bower_components/angular-touch/angular-touch.js',
       'bower_components/angular-ui-router/release/angular-ui-router.js',
       'bower_components/oclazyload/dist/ocLazyLoad.js',
+      'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
+      'bower_components/angular-translate/angular-translate.js',
+      'bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js',
+      'bower_components/angular-translate-storage-local/angular-translate-storage-local.js',
+      'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
+      'bower_components/angular-translate-handler-log/angular-translate-handler-log.js',
+      'bower_components/angular-loading-bar/build/loading-bar.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
+      'app/scripts/config.js',
+      'app/scripts/app.js',
       'app/scripts/**/*.js',
       'test/mock/**/*.js',
       'test/spec/**/*.js'
@@ -40,6 +49,7 @@ module.exports = function(config) {
 
     // list of files / patterns to exclude
     exclude: [
+      'app/scripts/config.tpl.js'
     ],
 
     // web server port

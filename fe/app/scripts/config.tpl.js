@@ -6,7 +6,11 @@ angular
     'ui.router',
     'oc.lazyLoad',
     'ngResource',
-    'ngCookies'
+    'ngCookies',
+    'ui.bootstrap',
+    'pascalprecht.translate',
+    'ngAnimate',
+    'angular-loading-bar'
 ])
 .constant('APP_CONFIG', /* @echo APP_CONFIG */)
 .value('debug', true);
